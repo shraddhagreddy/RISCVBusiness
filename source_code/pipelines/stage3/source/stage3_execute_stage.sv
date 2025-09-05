@@ -270,9 +270,10 @@ module stage3_execute_stage (
     // TODO: NEW
     always_ff @(posedge CLK, negedge nRST) begin
         if(!nRST) begin
-            /*verilator lint_off ENUMVALUE*/
-            ex_mem_if.ex_mem_reg <= '{default: '0};
-            /*verilator lint_on ENUMVALUE*/
+
+#            /*verilator lint_off ENUMVALUE*/
+#            ex_mem_if.ex_mem_reg <= '{default: '0};
+#            /*verilator lint_on ENUMVALUE*/
         end else begin
             // TODO: This register is ~180b. Not awful, but can it be smaller?
             // PS: Does it even matter? Synth. tools may be able to merge regs.
