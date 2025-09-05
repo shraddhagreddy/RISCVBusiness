@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator make
+
+      - name: Lint with Verilator
+        run: |
+          verilator --lint-only source_code/**/*.sv
+
+      - name: Run supervisor testbenches
+        run: |
+          cd source_code/tb
+          verilator -cc tb_supervisor_cache.sv tb_supervisor_cache_wrapper.sv tb_supervisor.sv
+          verilator -cc tb_tlb_associative.sv tb_supervisor.sv
+          verilator -cc tb_tlb_directmapped.sv tb_supervisor.sv
+          verilator -cc tb_page_perm_check.sv tb_supervisor.sv
