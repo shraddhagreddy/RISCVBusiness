@@ -18,16 +18,19 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y verilator make
+          sudo apt-get install -y git make autoconf g++ flex bison libfl2 libfl-dev zlib1g zlib1g-dev
 
-      - name: Lint with Verilator
+      - name: Build and install latest Verilator
         run: |
-          verilator --lint-only source_code/**/*.sv
+          git clone https://github.com/verilator/verilator.git
+          cd verilator
+          git checkout v5.020   # latest stable (supports -Wno-ENUMVALUE)
+          autoconf
+          ./configure
+          make -j$(nproc)
+          sudo make install
+          verilator --version
 
-      - name: Run supervisor testbenches
-        run: |
-          cd source_code/tb
-          verilator -cc tb_supervisor_cache.sv tb_supervisor_cache_wrapper.sv tb_supervisor.sv
-          verilator -cc tb_tlb_associative.sv tb_supervisor.sv
-          verilator -cc tb_tlb_directmapped.sv tb_supervisor.sv
-          verilator -cc tb_page_perm_check.sv tb_supervisor.sv
+      - name: Run SoCET CI (default tests)
+        uses: Purdue-SoCET/SoCET-CI@main
+
